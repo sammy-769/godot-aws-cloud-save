@@ -1,0 +1,67 @@
+[gd_scene format=3 uid="uid://b0hj5056mfnpr"]
+
+[ext_resource type="Script" uid="uid://dwe67xkehu85q" path="res://scripts/main.gd" id="1_elqb8"]
+
+[node name="Main" type="Control" unique_id=93695549]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_elqb8")
+
+[node name="LobbyScroll" type="ScrollContainer" parent="." unique_id=355058381]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_scroll_mode = 0
+
+[node name="LobbyMargin" type="MarginContainer" parent="LobbyScroll" unique_id=1805700300]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="LobbyCenter" type="CenterContainer" parent="LobbyScroll/LobbyMargin" unique_id=77839696]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LobbyContent" type="VBoxContainer" parent="LobbyScroll/LobbyMargin/LobbyCenter" unique_id=382593323]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="MainTitle" type="Label" parent="LobbyScroll/LobbyMargin/LobbyCenter/LobbyContent" unique_id=1145386726]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "CLOUD SAVE LAB"
+horizontal_alignment = 1
+
+[node name="MainDescription" type="Label" parent="LobbyScroll/LobbyMargin/LobbyCenter/LobbyContent" unique_id=332028208]
+layout_mode = 2
+text = "Explore three different ways to save and retrieve game data using AWS."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Project1Button" type="Button" parent="LobbyScroll/LobbyMargin/LobbyCenter/LobbyContent" unique_id=1043971289]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Project 1 — S3 + Presigned URLs"
+
+[node name="Project2Button" type="Button" parent="LobbyScroll/LobbyMargin/LobbyCenter/LobbyContent" unique_id=1436404536]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Project 2 — API Gateway + Lambda + S3"
+
+[node name="Project3Button" type="Button" parent="LobbyScroll/LobbyMargin/LobbyCenter/LobbyContent" unique_id=1497819057]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Project 3 — API Gateway + Lambda + DynamoDB"
