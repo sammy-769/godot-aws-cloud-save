@@ -32,6 +32,7 @@ extends Control
 @onready var load_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions/LoadFromAwsButton
 @onready var logout_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/LogOutButton
 @onready var profile_status: Label = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection/ServerStatusMessage
+@onready var profile_username_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/ProfileUsernameRow/ProfileUsernameField
 @onready var level_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/LevelRow/LevelField
 @onready var coins_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/CoinsRow/CoinsField
 @onready var high_score_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/HighScoreRow/HighScoreField
@@ -296,6 +297,11 @@ func _on_save_pressed() -> void:
 	if access_token.is_empty():
 		return
 
+	var username := profile_username_field.text.strip_edges()
+	if username.is_empty():
+		_set_status("Username cannot be empty.")
+		return
+
 	var level := _profile_integer(level_field, "Level")
 	var coins := _profile_integer(coins_field, "Coins")
 	var high_score := _profile_integer(high_score_field, "High Score")
@@ -305,6 +311,7 @@ func _on_save_pressed() -> void:
 
 	var save_data := {
 		"schema_version": 1,
+		"username": username,
 		"level": level,
 		"coins": coins,
 		"high_score": high_score,
@@ -375,6 +382,8 @@ func _on_cloud_operation_succeeded(
 	save_data: Dictionary
 ) -> void:
 	if operation == "load":
+		if save_data.has("username"):
+			profile_username_field.text = save_data["username"]
 		level_field.text = str(save_data["level"])
 		coins_field.text = str(save_data["coins"])
 		high_score_field.text = str(save_data["high_score"])

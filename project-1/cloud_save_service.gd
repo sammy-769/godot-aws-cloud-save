@@ -169,6 +169,10 @@ func _validate_downloaded_save(save_data: Dictionary) -> Dictionary:
 		return {}
 
 	var validated := {"schema_version": 1}
+	if save_data.has("username"):
+		if typeof(save_data["username"]) != TYPE_STRING or str(save_data["username"]).strip_edges().is_empty():
+			return {}
+		validated["username"] = str(save_data["username"])
 	for field in ["level", "coins", "high_score", "games_played"]:
 		if not save_data.has(field) or not _is_nonnegative_integer(save_data[field]):
 			return {}
@@ -178,6 +182,10 @@ func _validate_downloaded_save(save_data: Dictionary) -> Dictionary:
 
 func _is_valid_save_data(save_data: Dictionary) -> bool:
 	if save_data.get("schema_version") != 1:
+		return false
+	if not save_data.has("username") \
+			or typeof(save_data["username"]) != TYPE_STRING \
+			or str(save_data["username"]).strip_edges().is_empty():
 		return false
 	for field in ["level", "coins", "high_score", "games_played"]:
 		if not save_data.has(field) or not _is_nonnegative_integer(save_data[field]):
