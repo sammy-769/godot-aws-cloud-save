@@ -66,6 +66,8 @@ func resend_confirmation_code(username: String) -> Error:
 
 
 func initiate_password_auth(username: String, password: String) -> Error:
+	if _request_in_progress:
+		return ERR_BUSY
 	_clear_tokens()
 	var payload := {
 		"AuthFlow": "USER_PASSWORD_AUTH",
@@ -76,6 +78,19 @@ func initiate_password_auth(username: String, password: String) -> Error:
 		},
 	}
 	return _send_request("InitiateAuth", username, payload)
+
+
+func get_valid_access_token() -> String:
+	if _access_token.is_empty():
+		return ""
+	if int(Time.get_unix_time_from_system()) >= _token_expires_at:
+		_clear_tokens()
+		return ""
+	return _access_token
+
+
+func logout() -> void:
+	_clear_tokens()
 
 
 func _send_request(operation: String, username: String, payload: Dictionary) -> Error:

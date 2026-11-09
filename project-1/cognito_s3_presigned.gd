@@ -32,6 +32,10 @@ extends Control
 @onready var load_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions/LoadFromAwsButton
 @onready var logout_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/LogOutButton
 @onready var profile_status: Label = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection/ServerStatusMessage
+@onready var level_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/LevelRow/LevelField
+@onready var coins_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/CoinsRow/CoinsField
+@onready var high_score_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/HighScoreRow/HighScoreField
+@onready var games_played_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/GamesPlayedRow/GamesPlayedField
 
 var active_status_label: Label
 var pending_username := ""
@@ -53,6 +57,7 @@ func _ready() -> void:
 	logout_button.pressed.connect(_on_logout_pressed)
 
 	var auth := $CognitoAuth
+	var cloud_save := $CloudSaveService
 	auth.connect("operation_started", _on_auth_operation_started)
 	auth.connect("operation_finished", _on_auth_operation_finished)
 	auth.connect("registration_accepted", _on_registration_accepted)
@@ -63,6 +68,11 @@ func _ready() -> void:
 	auth.connect("resend_failed", _on_resend_failed)
 	auth.connect("login_succeeded", _on_login_succeeded)
 	auth.connect("login_failed", _on_login_failed)
+	cloud_save.connect("operation_started", _on_cloud_operation_started)
+	cloud_save.connect("operation_finished", _on_cloud_operation_finished)
+	cloud_save.connect("progress_updated", _on_cloud_progress_updated)
+	cloud_save.connect("operation_succeeded", _on_cloud_operation_succeeded)
+	cloud_save.connect("operation_failed", _on_cloud_operation_failed)
 
 	_show_login()
 
@@ -282,16 +292,113 @@ func _request_start_error(error: int) -> String:
 
 
 func _on_save_pressed() -> void:
-	_set_status("AWS saving is not implemented yet.")
+	var access_token := _get_access_token_for_cloud()
+	if access_token.is_empty():
+		return
+
+	var level := _profile_integer(level_field, "Level")
+	var coins := _profile_integer(coins_field, "Coins")
+	var high_score := _profile_integer(high_score_field, "High Score")
+	var games_played := _profile_integer(games_played_field, "Games Played")
+	if level < 0 or coins < 0 or high_score < 0 or games_played < 0:
+		return
+
+	var save_data := {
+		"schema_version": 1,
+		"level": level,
+		"coins": coins,
+		"high_score": high_score,
+		"games_played": games_played,
+	}
+	var request_error: int = $CloudSaveService.call("save_player_data", access_token, save_data)
+	if request_error != OK:
+		_set_status(_cloud_request_start_error(request_error))
 
 
 func _on_load_pressed() -> void:
-	_set_status("AWS loading is not implemented yet.")
+	var access_token := _get_access_token_for_cloud()
+	if access_token.is_empty():
+		return
+
+	var request_error: int = $CloudSaveService.call("load_player_data", access_token)
+	if request_error != OK:
+		_set_status(_cloud_request_start_error(request_error))
 
 
 func _on_logout_pressed() -> void:
+	$CognitoAuth.call("logout")
+	login_password_field.clear()
 	_show_login()
-	_set_status("Sign out is not implemented yet.")
+	_set_status("You have been signed out.")
+
+
+func _get_access_token_for_cloud() -> String:
+	var access_token := str($CognitoAuth.call("get_valid_access_token"))
+	if access_token.is_empty():
+		$CognitoAuth.call("logout")
+		_show_login()
+		_set_status("Your session has expired. Please log in again.")
+	return access_token
+
+
+func _profile_integer(field: LineEdit, label: String) -> int:
+	var value := field.text.strip_edges()
+	if not value.is_valid_int():
+		_set_status("%s must be a whole number." % label)
+		return -1
+	var parsed_value := value.to_int()
+	if parsed_value < 0 or parsed_value > 2147483647:
+		_set_status("%s must be between 0 and 2147483647." % label)
+		return -1
+	return parsed_value
+
+
+func _on_cloud_operation_started(_operation: String) -> void:
+	save_button.disabled = true
+	load_button.disabled = true
+	logout_button.disabled = true
+
+
+func _on_cloud_operation_finished(_operation: String) -> void:
+	save_button.disabled = false
+	load_button.disabled = false
+	logout_button.disabled = false
+
+
+func _on_cloud_progress_updated(message: String) -> void:
+	profile_status.text = message
+
+
+func _on_cloud_operation_succeeded(
+	operation: String,
+	message: String,
+	save_data: Dictionary
+) -> void:
+	if operation == "load":
+		level_field.text = str(save_data["level"])
+		coins_field.text = str(save_data["coins"])
+		high_score_field.text = str(save_data["high_score"])
+		games_played_field.text = str(save_data["games_played"])
+	profile_status.text = message
+
+
+func _on_cloud_operation_failed(message: String, requires_login: bool) -> void:
+	if requires_login:
+		$CognitoAuth.call("logout")
+		_show_login()
+		_set_status(message)
+		return
+	profile_status.text = message
+
+
+func _cloud_request_start_error(error: int) -> String:
+	if error == ERR_BUSY:
+		return "A cloud save operation is already in progress. Please wait."
+	if error == ERR_UNAUTHORIZED:
+		return "Your authentication has expired. Please log in again."
+	if error == ERR_INVALID_DATA:
+		return "The player profile contains invalid save data."
+	return "Could not start the cloud save operation. Try again."
 
 
 func _set_status(message: String) -> void:

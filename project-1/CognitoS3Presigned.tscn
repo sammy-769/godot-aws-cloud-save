@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://xcmwpvd2bcfe"]
+[gd_scene load_steps=4 format=3 uid="uid://xcmwpvd2bcfe"]
 
 [ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/cognito_s3_presigned.gd" id="1_script"]
 [ext_resource type="Script" path="res://project-1/cognito_auth.gd" id="2_cognito_auth"]
+[ext_resource type="Script" path="res://project-1/cloud_save_service.gd" id="3_cloud_save"]
 
 [node name="CognitoS3Presigned" type="Control" unique_id=1053216477]
 layout_mode = 3
@@ -14,6 +15,9 @@ script = ExtResource("1_script")
 
 [node name="CognitoAuth" type="Node" parent="."]
 script = ExtResource("2_cognito_auth")
+
+[node name="CloudSaveService" type="Node" parent="."]
+script = ExtResource("3_cloud_save")
 
 [node name="ProjectScroll" type="ScrollContainer" parent="."]
 layout_mode = 0
