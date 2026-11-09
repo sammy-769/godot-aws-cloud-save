@@ -22,6 +22,7 @@ extends Control
 @onready var go_to_verification_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm/RegisterLinks/GoToVerificationButton
 
 @onready var verification_code_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationCodeField
+@onready var verification_username_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationUsernameField
 @onready var verification_status: Label = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationStatus
 @onready var verify_email_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerifyEmailButton
 @onready var resend_code_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationActions/ResendCodeButton
@@ -33,6 +34,7 @@ extends Control
 @onready var profile_status: Label = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection/ServerStatusMessage
 
 var active_status_label: Label
+var pending_username := ""
 
 
 func _ready() -> void:
@@ -49,6 +51,16 @@ func _ready() -> void:
 	save_button.pressed.connect(_on_save_pressed)
 	load_button.pressed.connect(_on_load_pressed)
 	logout_button.pressed.connect(_on_logout_pressed)
+
+	var auth := $CognitoAuth
+	auth.connect("operation_started", _on_auth_operation_started)
+	auth.connect("operation_finished", _on_auth_operation_finished)
+	auth.connect("registration_accepted", _on_registration_accepted)
+	auth.connect("registration_failed", _on_registration_failed)
+	auth.connect("confirmation_succeeded", _on_confirmation_succeeded)
+	auth.connect("confirmation_failed", _on_confirmation_failed)
+	auth.connect("resend_succeeded", _on_resend_succeeded)
+	auth.connect("resend_failed", _on_resend_failed)
 
 	_show_login()
 
@@ -75,7 +87,12 @@ func _show_verification() -> void:
 	verification_container.show()
 	game_profile_container.hide()
 	active_status_label = verification_status
-	_set_status("Email verification is not implemented yet.")
+	verification_username_field.text = pending_username
+	verification_username_field.editable = pending_username.is_empty()
+	if pending_username.is_empty():
+		_set_status("Enter your Cognito username to verify your email or request another code.")
+	else:
+		_set_status("")
 
 
 func _show_game_profile() -> void:
@@ -102,7 +119,9 @@ func _on_create_account_pressed() -> void:
 		_set_status("Complete all fields to create an account.")
 		return
 
-	if not _is_valid_email(register_email_field.text.strip_edges()):
+	var username := register_username_field.text.strip_edges()
+	var email := register_email_field.text.strip_edges()
+	if not _is_valid_email(email):
 		_set_status("Enter a valid email address.")
 		return
 
@@ -110,12 +129,26 @@ func _on_create_account_pressed() -> void:
 		_set_status("Passwords do not match.")
 		return
 
-	_set_status("Registration is not implemented yet.")
+	var password := register_password_field.text
+	register_password_field.clear()
+	confirm_password_field.clear()
+	create_account_button.disabled = true
+	var request_error: int = $CognitoAuth.call("sign_up", username, email, password)
+	password = ""
+	if request_error != OK:
+		create_account_button.disabled = false
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Sending registration request to Cognito...")
 
 
 func _is_valid_email(email: String) -> bool:
 	var email_parts := email.split("@", false)
-	if email_parts.size() != 2 or email.contains(" ") or email.contains("\t"):
+	if email_parts.size() != 2 \
+			or email.contains(" ") \
+			or email.contains("\t") \
+			or email.contains("\n") \
+			or email.contains("\r"):
 		return false
 
 	var local_part: String = email_parts[0]
@@ -131,11 +164,95 @@ func _is_valid_email(email: String) -> bool:
 
 
 func _on_verify_email_pressed() -> void:
-	_set_status("Email verification is not implemented yet.")
+	var username := _get_verification_username()
+	var confirmation_code := verification_code_field.text.strip_edges()
+	if username.is_empty():
+		_set_status("Enter your Cognito username before verifying your email.")
+		return
+	if confirmation_code.is_empty():
+		_set_status("Enter the verification code.")
+		return
+
+	pending_username = username
+	verification_username_field.text = username
+	verification_username_field.editable = false
+	verify_email_button.disabled = true
+	var request_error: int = $CognitoAuth.call("confirm_sign_up", username, confirmation_code)
+	confirmation_code = ""
+	if request_error != OK:
+		verify_email_button.disabled = false
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Verifying your email with Cognito...")
 
 
 func _on_resend_code_pressed() -> void:
-	_set_status("Resending a verification code is not implemented yet.")
+	var username := _get_verification_username()
+	if username.is_empty():
+		_set_status("Enter your Cognito username before requesting a verification code.")
+		return
+
+	pending_username = username
+	verification_username_field.text = username
+	verification_username_field.editable = false
+	resend_code_button.disabled = true
+	var request_error: int = $CognitoAuth.call("resend_confirmation_code", username)
+	if request_error != OK:
+		resend_code_button.disabled = false
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Requesting a new verification code...")
+
+
+func _get_verification_username() -> String:
+	if not pending_username.is_empty():
+		return pending_username
+	return verification_username_field.text.strip_edges()
+
+
+func _on_auth_operation_started(_operation: String) -> void:
+	create_account_button.disabled = true
+	verify_email_button.disabled = true
+	resend_code_button.disabled = true
+
+
+func _on_auth_operation_finished(_operation: String) -> void:
+	create_account_button.disabled = false
+	verify_email_button.disabled = false
+	resend_code_button.disabled = false
+
+
+func _on_registration_accepted(username: String, message: String) -> void:
+	pending_username = username
+	_show_verification()
+	_set_status(message)
+
+
+func _on_registration_failed(message: String) -> void:
+	_set_status(message)
+
+
+func _on_confirmation_succeeded() -> void:
+	_show_login()
+	_set_status("Email verified. You can now sign in.")
+
+
+func _on_confirmation_failed(message: String) -> void:
+	_set_status(message)
+
+
+func _on_resend_succeeded(message: String) -> void:
+	_set_status(message)
+
+
+func _on_resend_failed(message: String) -> void:
+	_set_status(message)
+
+
+func _request_start_error(error: int) -> String:
+	if error == ERR_BUSY:
+		return "A Cognito request is already in progress. Please wait."
+	return "Could not start the Cognito request. Try again."
 
 
 func _on_save_pressed() -> void:

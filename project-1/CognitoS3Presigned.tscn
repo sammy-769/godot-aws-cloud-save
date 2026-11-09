@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://xcmwpvd2bcfe"]
+[gd_scene load_steps=3 format=3 uid="uid://xcmwpvd2bcfe"]
 
 [ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/cognito_s3_presigned.gd" id="1_script"]
+[ext_resource type="Script" path="res://project-1/cognito_auth.gd" id="2_cognito_auth"]
 
 [node name="CognitoS3Presigned" type="Control" unique_id=1053216477]
 layout_mode = 3
@@ -10,6 +11,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
+
+[node name="CognitoAuth" type="Node" parent="."]
+script = ExtResource("2_cognito_auth")
 
 [node name="ProjectScroll" type="ScrollContainer" parent="."]
 layout_mode = 0
@@ -207,6 +211,10 @@ layout_mode = 2
 text = "Enter the code sent to your registered email address."
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="VerificationUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
+layout_mode = 2
+placeholder_text = "Enter Cognito username..."
 
 [node name="VerificationCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
 layout_mode = 2
