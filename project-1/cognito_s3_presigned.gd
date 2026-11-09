@@ -134,7 +134,7 @@ func _on_login_pressed() -> void:
 
 
 func _on_login_succeeded(username: String) -> void:
-	profile_username_field.text = username
+	profile_username_field.text = "" if username.contains("@") else username
 	_show_game_profile()
 	_on_load_pressed()
 
