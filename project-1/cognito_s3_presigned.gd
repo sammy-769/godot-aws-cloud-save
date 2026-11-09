@@ -61,6 +61,8 @@ func _ready() -> void:
 	auth.connect("confirmation_failed", _on_confirmation_failed)
 	auth.connect("resend_succeeded", _on_resend_succeeded)
 	auth.connect("resend_failed", _on_resend_failed)
+	auth.connect("login_succeeded", _on_login_succeeded)
+	auth.connect("login_failed", _on_login_failed)
 
 	_show_login()
 
@@ -104,7 +106,29 @@ func _show_game_profile() -> void:
 
 
 func _on_login_pressed() -> void:
-	_set_status("Authentication is not implemented yet.")
+	var username := login_identifier_field.text.strip_edges()
+	if username.is_empty() or login_password_field.text.is_empty():
+		_set_status("Enter your username or email and password.")
+		return
+
+	var password := login_password_field.text
+	login_password_field.clear()
+	login_button.disabled = true
+	var request_error: int = $CognitoAuth.call("initiate_password_auth", username, password)
+	if request_error != OK:
+		login_button.disabled = false
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Signing in with Cognito...")
+
+
+func _on_login_succeeded(_username: String) -> void:
+	_show_game_profile()
+	_set_status("Signed in.")
+
+
+func _on_login_failed(message: String) -> void:
+	_set_status(message)
 
 
 func _on_forgot_password_pressed() -> void:
@@ -211,12 +235,14 @@ func _get_verification_username() -> String:
 
 
 func _on_auth_operation_started(_operation: String) -> void:
+	login_button.disabled = true
 	create_account_button.disabled = true
 	verify_email_button.disabled = true
 	resend_code_button.disabled = true
 
 
 func _on_auth_operation_finished(_operation: String) -> void:
+	login_button.disabled = false
 	create_account_button.disabled = false
 	verify_email_button.disabled = false
 	resend_code_button.disabled = false

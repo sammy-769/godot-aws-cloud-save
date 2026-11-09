@@ -8,6 +8,8 @@ signal confirmation_succeeded
 signal confirmation_failed(message: String)
 signal resend_succeeded(message: String)
 signal resend_failed(message: String)
+signal login_succeeded(username: String)
+signal login_failed(message: String)
 
 const COGNITO_ENDPOINT := "https://cognito-idp.eu-north-1.amazonaws.com/"
 const CLIENT_ID := "39enqqncspu5ishknb9t9bdhv0"
@@ -17,6 +19,10 @@ var _http_request: HTTPRequest
 var _operation := ""
 var _request_username := ""
 var _request_in_progress := false
+var _access_token := ""
+var _id_token := ""
+var _refresh_token := ""
+var _token_expires_at := 0
 
 
 func _ready() -> void:
@@ -57,6 +63,19 @@ func resend_confirmation_code(username: String) -> Error:
 		"Username": username,
 	}
 	return _send_request("ResendConfirmationCode", username, payload)
+
+
+func initiate_password_auth(username: String, password: String) -> Error:
+	_clear_tokens()
+	var payload := {
+		"AuthFlow": "USER_PASSWORD_AUTH",
+		"ClientId": CLIENT_ID,
+		"AuthParameters": {
+			"USERNAME": username,
+			"PASSWORD": password,
+		},
+	}
+	return _send_request("InitiateAuth", username, payload)
 
 
 func _send_request(operation: String, username: String, payload: Dictionary) -> Error:
@@ -122,8 +141,54 @@ func _on_request_completed(
 			confirmation_succeeded.emit()
 		"ResendConfirmationCode":
 			resend_succeeded.emit("A new verification code was sent.")
+		"InitiateAuth":
+			_handle_authentication_response(completed_username, response_data)
 
 	operation_finished.emit(completed_operation)
+
+
+func _handle_authentication_response(username: String, response_data: Dictionary) -> void:
+	var authentication_result: Variant = response_data.get("AuthenticationResult")
+	if not authentication_result is Dictionary:
+		login_failed.emit(_challenge_message(response_data))
+		return
+
+	var access_token := str(authentication_result.get("AccessToken", ""))
+	var id_token := str(authentication_result.get("IdToken", ""))
+	var refresh_token := str(authentication_result.get("RefreshToken", ""))
+	var expires_in := int(authentication_result.get("ExpiresIn", 0))
+	if access_token.is_empty() or id_token.is_empty() or expires_in <= 0:
+		_clear_tokens()
+		login_failed.emit("Cognito returned an incomplete authentication response. Please try again.")
+		return
+
+	_access_token = access_token
+	_id_token = id_token
+	_refresh_token = refresh_token
+	_token_expires_at = int(Time.get_unix_time_from_system()) + expires_in
+	login_succeeded.emit(username)
+
+
+func _challenge_message(response_data: Dictionary) -> String:
+	var challenge_name := str(response_data.get("ChallengeName", ""))
+	match challenge_name:
+		"SMS_MFA", "SOFTWARE_TOKEN_MFA", "EMAIL_OTP", "SMS_OTP":
+			return "This account requires an additional verification step, which is not supported yet."
+		"NEW_PASSWORD_REQUIRED":
+			return "This account must change its password before it can sign in."
+		"PASSWORD_RESET_REQUIRED":
+			return "This account must reset its password before it can sign in."
+		"SELECT_MFA_TYPE", "MFA_SETUP":
+			return "This account requires MFA setup, which is not supported yet."
+		_:
+			return "Cognito did not complete sign-in. An unsupported authentication challenge may be required."
+
+
+func _clear_tokens() -> void:
+	_access_token = ""
+	_id_token = ""
+	_refresh_token = ""
+	_token_expires_at = 0
 
 
 func _parse_response(body: PackedByteArray) -> Dictionary:
@@ -146,6 +211,9 @@ func _emit_failure(operation: String, message: String) -> void:
 			confirmation_failed.emit(message)
 		"ResendConfirmationCode":
 			resend_failed.emit(message)
+		"InitiateAuth":
+			_clear_tokens()
+			login_failed.emit(message)
 
 
 func _error_message(operation: String, response_data: Dictionary) -> String:
@@ -169,25 +237,39 @@ func _error_message(operation: String, response_data: Dictionary) -> String:
 		"InvalidPasswordException":
 			return "Password does not meet the user pool requirements."
 		"InvalidParameterException":
+			if operation == "InitiateAuth":
+				return "Cognito rejected the login request. Confirm USER_PASSWORD_AUTH is enabled for this app client."
 			return "Cognito rejected one or more account details. Check the fields and try again."
 		"CodeMismatchException":
 			return "The verification code is incorrect."
 		"ExpiredCodeException":
 			return "The verification code has expired. Request a new code."
 		"UserNotFoundException":
+			if operation == "InitiateAuth":
+				return "Incorrect username/email or password."
 			return "No account was found for that username."
 		"UserNotConfirmedException":
 			return "This account still needs email verification."
 		"UserAlreadyConfirmedException":
 			return "This account has already been verified. You can sign in."
 		"NotAuthorizedException":
+			if operation == "InitiateAuth":
+				return "Incorrect username/email or password."
 			return "Cognito could not authorize this request. Check the username and account status."
+		"UserNotEnabledException":
+			return "This account is disabled. Contact the account administrator."
+		"PasswordResetRequiredException":
+			return "This account must reset its password before signing in."
+		"AuthFlowNotSupportedException":
+			return "USER_PASSWORD_AUTH is not enabled for this Cognito app client."
 		"CodeDeliveryFailureException":
 			return "Cognito could not send the verification code."
 		"LimitExceededException", "TooManyRequestsException":
 			return "Too many requests. Wait a while and try again."
 		_:
 			match operation:
+				"InitiateAuth":
+					return "Cognito could not complete sign-in. Check your connection and account, then try again."
 				"SignUp":
 					return "Cognito could not complete registration. Check the account details and try again."
 				"ConfirmSignUp":
