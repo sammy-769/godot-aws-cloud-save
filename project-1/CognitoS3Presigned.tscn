@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://xcmwpvd2bcfe"]
+[gd_scene load_steps=2 format=3 uid="uid://xcmwpvd2bcfe"]
 
-[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/cognito_s3_presigned.gd" id="1_mbfmi"]
+[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/cognito_s3_presigned.gd" id="1_script"]
 
 [node name="CognitoS3Presigned" type="Control" unique_id=1053216477]
 layout_mode = 3
@@ -9,15 +9,15 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_mbfmi")
+script = ExtResource("1_script")
 
-[node name="ProjectScroll" type="ScrollContainer" parent="." unique_id=1796346575]
+[node name="ProjectScroll" type="ScrollContainer" parent="."]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 horizontal_scroll_mode = 0
 
-[node name="ProjectMargin" type="MarginContainer" parent="ProjectScroll" unique_id=228731018]
+[node name="ProjectMargin" type="MarginContainer" parent="ProjectScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -26,23 +26,23 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 24
 
-[node name="ProjectContent" type="VBoxContainer" parent="ProjectScroll/ProjectMargin" unique_id=196595456]
+[node name="ProjectContent" type="VBoxContainer" parent="ProjectScroll/ProjectMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
 
-[node name="BackToLobbyButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=73631256]
+[node name="BackToLobbyButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Back to Lobby"
 
-[node name="MainTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=613570444]
+[node name="MainTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "CLOUD SAVE LAB"
 horizontal_alignment = 1
 
-[node name="ProjectTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=1056118475]
+[node name="ProjectTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "PROJECT 1 — AUTHENTICATED CLOUD SAVES"
@@ -55,231 +55,335 @@ text = "Amazon Cognito + API Gateway + AWS Lambda + Amazon S3"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="PlayerLoginSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=736873362]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="_Label_9" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=1968573402]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Player Login"
-
-[node name="_HSeparator_10" type="HSeparator" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=925489201]
-layout_mode = 2
-
-[node name="EmailRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="EmailLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/EmailRow"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-text = "Email"
-vertical_alignment = 1
-
-[node name="EmailField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/EmailRow"]
+[node name="LoginContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Enter email..."
 
-[node name="UsernameRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=368326909]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="_Label_11" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/UsernameRow" unique_id=1733711184]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-text = "Username"
-vertical_alignment = 1
-
-[node name="UsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/UsernameRow" unique_id=161255727]
+[node name="LoginCenter" type="CenterContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Enter username..."
 
-[node name="PasswordRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=1434989417]
+[node name="LoginForm" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter"]
+custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
+size_flags_horizontal = 4
 theme_override_constants/separation = 12
 
-[node name="_Label_12" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/PasswordRow" unique_id=998694583]
-custom_minimum_size = Vector2(100, 0)
+[node name="LoginHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
 layout_mode = 2
-text = "Password"
-vertical_alignment = 1
+theme_override_font_sizes/font_size = 22
+text = "Welcome Back"
+horizontal_alignment = 1
 
-[node name="PasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/PasswordRow" unique_id=2101615738]
+[node name="LoginDescription" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
 layout_mode = 2
-size_flags_horizontal = 3
+text = "Sign in to access your cloud save."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="UsernameOrEmailField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
+layout_mode = 2
+placeholder_text = "Enter username or email..."
+
+[node name="LoginPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
+layout_mode = 2
 placeholder_text = "Enter password..."
 secret = true
 
-[node name="LoginActions" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=1745576035]
+[node name="LoginButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "Log In"
+
+[node name="LoginLinks" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LogInButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/LoginActions" unique_id=643148999]
+[node name="CreateNewButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm/LoginLinks"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Log In"
+text = "Create New"
 
-[node name="RegisterButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/LoginActions" unique_id=733800914]
+[node name="ForgotPasswordButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm/LoginLinks"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Register"
+text = "Forgot Password"
 
-[node name="VerificationSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection"]
+[node name="LoginStatus" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="RegisterContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent"]
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 10
+size_flags_horizontal = 3
 
-[node name="VerificationTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/VerificationSection"]
+[node name="RegisterCenter" type="CenterContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer"]
 layout_mode = 2
-text = "Email Verification"
+size_flags_horizontal = 3
 
-[node name="VerificationCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/VerificationSection"]
+[node name="RegisterForm" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="RegisterHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Create Account"
+horizontal_alignment = 1
+
+[node name="RegisterDescription" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+text = "Create an account to save your game progress."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="RegisterUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="RegisterEmailField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+placeholder_text = "Email"
+
+[node name="RegisterPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+placeholder_text = "Password"
+secret = true
+
+[node name="ConfirmPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+placeholder_text = "Confirm password"
+secret = true
+
+[node name="CreateAccountButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "Create Account"
+
+[node name="RegisterLinks" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RegisterBackToLoginButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm/RegisterLinks"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back to Login"
+
+[node name="GoToVerificationButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm/RegisterLinks"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Have a verification code?"
+
+[node name="RegisterStatus" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer/RegisterCenter/RegisterForm"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="VerificationContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VerificationCenter" type="CenterContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VerificationForm" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+
+[node name="VerificationHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Verify Your Email"
+horizontal_alignment = 1
+
+[node name="VerificationDescription" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
+layout_mode = 2
+text = "Enter the code sent to your registered email address."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="VerificationCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
 layout_mode = 2
 placeholder_text = "Enter verification code..."
 
-[node name="GameProfileSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=1932148328]
+[node name="VerifyEmailButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-theme_override_constants/separation = 10
+text = "Verify Email"
 
-[node name="_Label_13" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection" unique_id=865846593]
+[node name="VerificationActions" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_constants/separation = 12
+
+[node name="ResendCodeButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Resend Code"
+
+[node name="VerificationBackToLoginButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back to Login"
+
+[node name="VerificationStatus" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="GameProfileContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="GameProfileHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Game Profile"
+horizontal_alignment = 1
 
-[node name="_HSeparator_14" type="HSeparator" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection" unique_id=666255000]
-layout_mode = 2
-
-[node name="ProfileFields" type="GridContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection" unique_id=975917916]
+[node name="ProfileFields" type="GridContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer"]
 layout_mode = 2
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 12
 columns = 2
 
-[node name="_HBoxContainer_16" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=1602481515]
+[node name="PlayerIdRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_15" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_16" unique_id=1055506335]
+[node name="PlayerIdLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/PlayerIdRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Player ID"
 vertical_alignment = 1
 
-[node name="PlayerIdField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_16" unique_id=199829165]
+[node name="PlayerIdField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/PlayerIdRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Available after login"
 editable = false
 
-[node name="_HBoxContainer_18" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=369389682]
+[node name="ProfileUsernameRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_17" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_18" unique_id=507810064]
+[node name="ProfileUsernameLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/ProfileUsernameRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Username"
 vertical_alignment = 1
 
-[node name="ProfileUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_18" unique_id=313816759]
+[node name="ProfileUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/ProfileUsernameRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Sammy"
 
-[node name="_HBoxContainer_20" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=1554717753]
+[node name="LevelRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_19" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_20" unique_id=1048687390]
+[node name="LevelLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/LevelRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Level"
 vertical_alignment = 1
 
-[node name="LevelField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_20" unique_id=580071079]
+[node name="LevelField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/LevelRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "12"
 
-[node name="_HBoxContainer_22" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=770274448]
+[node name="CoinsRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_21" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_22" unique_id=2114443697]
+[node name="CoinsLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/CoinsRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Coins"
 vertical_alignment = 1
 
-[node name="CoinsField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_22" unique_id=1442203036]
+[node name="CoinsField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/CoinsRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "850"
 
-[node name="_HBoxContainer_24" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=667456830]
+[node name="HighScoreRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_23" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_24" unique_id=1430387877]
+[node name="HighScoreLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/HighScoreRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "High Score"
 vertical_alignment = 1
 
-[node name="HighScoreField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_24" unique_id=866599764]
+[node name="HighScoreField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/HighScoreRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "4500"
 
-[node name="_HBoxContainer_26" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=759371095]
+[node name="GamesPlayedRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="_Label_25" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_26" unique_id=377017500]
+[node name="GamesPlayedLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/GamesPlayedRow"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Games Played"
 vertical_alignment = 1
 
-[node name="GamesPlayedField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_26" unique_id=522752675]
+[node name="GamesPlayedField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/GamesPlayedRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "36"
 
-[node name="AwsActions" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=1493685192]
+[node name="ProfileActions" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="SaveToAwsButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/AwsActions" unique_id=22071332]
-custom_minimum_size = Vector2(0, 48)
+[node name="SaveToAwsButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Save to AWS"
 
-[node name="LoadFromAwsButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/AwsActions" unique_id=1558902500]
-custom_minimum_size = Vector2(0, 48)
+[node name="LoadFromAwsButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions"]
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Load from AWS"
 
-[node name="ServerStatusSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=588703954]
+[node name="LogOutButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Log Out"
+
+[node name="ServerStatusSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="_Label_27" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/ServerStatusSection" unique_id=860491824]
+[node name="ServerStatusHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Server Status"
 
-[node name="_HSeparator_28" type="HSeparator" parent="ProjectScroll/ProjectMargin/ProjectContent/ServerStatusSection" unique_id=1077926950]
+[node name="ServerStatusSeparator" type="HSeparator" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection"]
 layout_mode = 2
 
-[node name="StatusMessage" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/ServerStatusSection" unique_id=572756345]
+[node name="ServerStatusMessage" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ServerStatusSection"]
 layout_mode = 2
 text = "Waiting for connection..."
 autowrap_mode = 3
