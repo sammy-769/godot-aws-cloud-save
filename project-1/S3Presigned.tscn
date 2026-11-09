@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://xcmwpvd2bcfe"]
 
-[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://scripts/s_3_presigned.gd" id="1_mbfmi"]
+[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/s_3_presigned.gd" id="1_mbfmi"]
 
 [node name="S3Presigned" type="Control" unique_id=1053216477]
 layout_mode = 3

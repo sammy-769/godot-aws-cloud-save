@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Cloud Save Lab"
-run/main_scene="uid://b0hj5056mfnpr"
+run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

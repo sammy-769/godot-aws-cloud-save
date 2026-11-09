@@ -24,6 +24,6 @@ func _set_status(message: String) -> void:
 
 
 func _back_to_lobby() -> void:
-	var error := get_tree().change_scene_to_file("res://scenes/Main.tscn")
+	var error := get_tree().change_scene_to_file("res://Main.tscn")
 	if error != OK:
 		push_error("Could not return to the lobby (error %d)." % error)

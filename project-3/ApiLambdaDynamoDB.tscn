@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://s8ds5csreetp"]
 
-[ext_resource type="Script" uid="uid://t1ktqcubhxsa" path="res://scripts/api_lambda_dynamo_db.gd" id="1_smd70"]
+[ext_resource type="Script" uid="uid://t1ktqcubhxsa" path="res://project-3/api_lambda_dynamo_db.gd" id="1_smd70"]
 
 [node name="ApiLambdaDynamoDB" type="Control" unique_id=580314862]
 layout_mode = 3

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dfwsfod612fki"]
 
-[ext_resource type="Script" uid="uid://7yiiexpj5iu1" path="res://scripts/api_lambda_s_3.gd" id="1_p5lup"]
+[ext_resource type="Script" uid="uid://7yiiexpj5iu1" path="res://project-2/api_lambda_s_3.gd" id="1_p5lup"]
 
 [node name="ApiLambdaS3" type="Control" unique_id=1180364745]
 layout_mode = 3
