@@ -1,7 +1,7 @@
 extends Control
 
 const PROJECT_SCENES := [
-	"res://project-1/S3Presigned.tscn",
+	"res://project-1/CognitoS3Presigned.tscn",
 	"res://project-2/ApiLambdaS3.tscn",
 	"res://project-3/ApiLambdaDynamoDB.tscn",
 ]

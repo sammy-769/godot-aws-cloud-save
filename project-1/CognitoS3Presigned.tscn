@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://xcmwpvd2bcfe"]
 
-[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/s_3_presigned.gd" id="1_mbfmi"]
+[ext_resource type="Script" uid="uid://p4adwxusbkev" path="res://project-1/cognito_s3_presigned.gd" id="1_mbfmi"]
 
-[node name="S3Presigned" type="Control" unique_id=1053216477]
+[node name="CognitoS3Presigned" type="Control" unique_id=1053216477]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,7 +45,13 @@ horizontal_alignment = 1
 [node name="ProjectTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=1056118475]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "VERSION 1 — AMAZON S3 + PRESIGNED URLS"
+text = "PROJECT 1 — AUTHENTICATED CLOUD SAVES"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ProjectSubtitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent"]
+layout_mode = 2
+text = "Amazon Cognito + API Gateway + AWS Lambda + Amazon S3"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -60,6 +66,21 @@ text = "Player Login"
 
 [node name="_HSeparator_10" type="HSeparator" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=925489201]
 layout_mode = 2
+
+[node name="EmailRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="EmailLabel" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/EmailRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Email"
+vertical_alignment = 1
+
+[node name="EmailField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/EmailRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter email..."
 
 [node name="UsernameRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection" unique_id=368326909]
 layout_mode = 2
@@ -106,6 +127,19 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Register"
 
+[node name="VerificationSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="VerificationTitle" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/VerificationSection"]
+layout_mode = 2
+text = "Email Verification"
+
+[node name="VerificationCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PlayerLoginSection/VerificationSection"]
+layout_mode = 2
+placeholder_text = "Enter verification code..."
+
 [node name="GameProfileSection" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=1932148328]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -138,7 +172,8 @@ vertical_alignment = 1
 [node name="PlayerIdField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields/_HBoxContainer_16" unique_id=199829165]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "PLAYER-001"
+text = "Available after login"
+editable = false
 
 [node name="_HBoxContainer_18" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileSection/ProfileFields" unique_id=369389682]
 custom_minimum_size = Vector2(300, 0)
