@@ -133,9 +133,10 @@ func _on_login_pressed() -> void:
 		_set_status("Signing in with Cognito...")
 
 
-func _on_login_succeeded(_username: String) -> void:
+func _on_login_succeeded(username: String) -> void:
+	profile_username_field.text = username
 	_show_game_profile()
-	_set_status("Signed in.")
+	_on_load_pressed()
 
 
 func _on_login_failed(message: String) -> void:
@@ -261,6 +262,8 @@ func _on_auth_operation_finished(_operation: String) -> void:
 
 func _on_registration_accepted(username: String, message: String) -> void:
 	pending_username = username
+	login_identifier_field.text = username
+	profile_username_field.text = username
 	_show_verification()
 	_set_status(message)
 
@@ -270,6 +273,9 @@ func _on_registration_failed(message: String) -> void:
 
 
 func _on_confirmation_succeeded() -> void:
+	if not pending_username.is_empty():
+		login_identifier_field.text = pending_username
+		profile_username_field.text = pending_username
 	_show_login()
 	_set_status("Email verified. You can now sign in.")
 
