@@ -296,7 +296,7 @@ vertical_alignment = 1
 [node name="ProfileUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields/ProfileUsernameRow" unique_id=1408851005]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Sammy"
+editable = false
 
 [node name="LevelRow" type="HBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileFields" unique_id=2096110603]
 custom_minimum_size = Vector2(300, 0)
