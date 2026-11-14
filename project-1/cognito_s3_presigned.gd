@@ -3,6 +3,7 @@ extends Control
 @onready var login_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/LoginContainer
 @onready var register_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer
 @onready var verification_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer
+@onready var password_reset_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer
 @onready var game_profile_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer
 
 @onready var login_identifier_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/LoginContainer/LoginCenter/LoginForm/UsernameOrEmailField
@@ -27,6 +28,15 @@ extends Control
 @onready var verify_email_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerifyEmailButton
 @onready var resend_code_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationActions/ResendCodeButton
 @onready var verification_back_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer/VerificationCenter/VerificationForm/VerificationActions/VerificationBackToLoginButton
+
+@onready var password_reset_username_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/PasswordResetUsernameField
+@onready var password_reset_code_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/PasswordResetCodeField
+@onready var new_password_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/NewPasswordField
+@onready var confirm_new_password_field: LineEdit = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/ConfirmNewPasswordField
+@onready var send_reset_code_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/SendResetCodeButton
+@onready var reset_password_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/ResetPasswordButton
+@onready var password_reset_status: Label = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/PasswordResetStatus
+@onready var password_reset_back_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm/PasswordResetBackToLoginButton
 
 @onready var save_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions/SaveToAwsButton
 @onready var load_button: Button = $ProjectScroll/ProjectMargin/ProjectContent/GameProfileContainer/ProfileActions/LoadFromAwsButton
@@ -53,6 +63,9 @@ func _ready() -> void:
 	verify_email_button.pressed.connect(_on_verify_email_pressed)
 	resend_code_button.pressed.connect(_on_resend_code_pressed)
 	verification_back_button.pressed.connect(_show_login)
+	send_reset_code_button.pressed.connect(_on_send_reset_code_pressed)
+	reset_password_button.pressed.connect(_on_reset_password_pressed)
+	password_reset_back_button.pressed.connect(_show_login)
 	save_button.pressed.connect(_on_save_pressed)
 	load_button.pressed.connect(_on_load_pressed)
 	logout_button.pressed.connect(_on_logout_pressed)
@@ -69,6 +82,10 @@ func _ready() -> void:
 	auth.connect("resend_failed", _on_resend_failed)
 	auth.connect("login_succeeded", _on_login_succeeded)
 	auth.connect("login_failed", _on_login_failed)
+	auth.connect("password_reset_code_sent", _on_password_reset_code_sent)
+	auth.connect("password_reset_code_failed", _on_password_reset_code_failed)
+	auth.connect("password_reset_succeeded", _on_password_reset_succeeded)
+	auth.connect("password_reset_failed", _on_password_reset_failed)
 	cloud_save.connect("operation_started", _on_cloud_operation_started)
 	cloud_save.connect("operation_finished", _on_cloud_operation_finished)
 	cloud_save.connect("progress_updated", _on_cloud_progress_updated)
@@ -82,6 +99,7 @@ func _show_login() -> void:
 	login_container.show()
 	register_container.hide()
 	verification_container.hide()
+	password_reset_container.hide()
 	game_profile_container.hide()
 	active_status_label = login_status
 
@@ -90,6 +108,7 @@ func _show_register() -> void:
 	login_container.hide()
 	register_container.show()
 	verification_container.hide()
+	password_reset_container.hide()
 	game_profile_container.hide()
 	active_status_label = register_status
 
@@ -98,6 +117,7 @@ func _show_verification() -> void:
 	login_container.hide()
 	register_container.hide()
 	verification_container.show()
+	password_reset_container.hide()
 	game_profile_container.hide()
 	active_status_label = verification_status
 	verification_username_field.text = pending_username
@@ -108,10 +128,20 @@ func _show_verification() -> void:
 		_set_status("")
 
 
+func _show_password_reset() -> void:
+	login_container.hide()
+	register_container.hide()
+	verification_container.hide()
+	password_reset_container.show()
+	game_profile_container.hide()
+	active_status_label = password_reset_status
+
+
 func _show_game_profile() -> void:
 	login_container.hide()
 	register_container.hide()
 	verification_container.hide()
+	password_reset_container.hide()
 	game_profile_container.show()
 	active_status_label = profile_status
 
@@ -144,7 +174,73 @@ func _on_login_failed(message: String) -> void:
 
 
 func _on_forgot_password_pressed() -> void:
-	_set_status("Password reset is not implemented yet.")
+	password_reset_username_field.text = login_identifier_field.text.strip_edges()
+	password_reset_code_field.clear()
+	new_password_field.clear()
+	confirm_new_password_field.clear()
+	_show_password_reset()
+	_set_status("")
+
+
+func _on_send_reset_code_pressed() -> void:
+	var username := password_reset_username_field.text.strip_edges()
+	if username.is_empty():
+		_set_status("Enter your username or email address.")
+		return
+
+	var request_error: int = $CognitoAuth.call("forgot_password", username)
+	if request_error != OK:
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Requesting a password reset code from Cognito...")
+
+
+func _on_reset_password_pressed() -> void:
+	var username := password_reset_username_field.text.strip_edges()
+	var confirmation_code := password_reset_code_field.text.strip_edges()
+	var new_password := new_password_field.text
+	var confirmed_password := confirm_new_password_field.text
+	if username.is_empty() or confirmation_code.is_empty() \
+			or new_password.is_empty() or confirmed_password.is_empty():
+		_set_status("Complete all fields to reset your password.")
+		return
+	if new_password != confirmed_password:
+		_set_status("New passwords do not match.")
+		return
+
+	var request_error: int = $CognitoAuth.call(
+		"confirm_forgot_password",
+		username,
+		confirmation_code,
+		new_password
+	)
+	if request_error != OK:
+		_set_status(_request_start_error(request_error))
+	else:
+		_set_status("Resetting your password with Cognito...")
+
+
+func _on_password_reset_code_sent(username: String, message: String) -> void:
+	password_reset_username_field.text = username
+	_set_status(message)
+
+
+func _on_password_reset_code_failed(message: String) -> void:
+	_set_status(message)
+
+
+func _on_password_reset_succeeded(username: String) -> void:
+	password_reset_code_field.clear()
+	new_password_field.clear()
+	confirm_new_password_field.clear()
+	login_identifier_field.text = username
+	login_password_field.clear()
+	_show_login()
+	_set_status("Password reset successfully. Sign in with your new password.")
+
+
+func _on_password_reset_failed(message: String) -> void:
+	_set_status(message)
 
 
 func _on_create_account_pressed() -> void:
@@ -251,6 +347,8 @@ func _on_auth_operation_started(_operation: String) -> void:
 	create_account_button.disabled = true
 	verify_email_button.disabled = true
 	resend_code_button.disabled = true
+	send_reset_code_button.disabled = true
+	reset_password_button.disabled = true
 
 
 func _on_auth_operation_finished(_operation: String) -> void:
@@ -258,6 +356,8 @@ func _on_auth_operation_finished(_operation: String) -> void:
 	create_account_button.disabled = false
 	verify_email_button.disabled = false
 	resend_code_button.disabled = false
+	send_reset_code_button.disabled = false
+	reset_password_button.disabled = false
 
 
 func _on_registration_accepted(username: String, message: String) -> void:
