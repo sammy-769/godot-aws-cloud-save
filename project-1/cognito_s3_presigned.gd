@@ -1,5 +1,9 @@
 extends Control
 
+# Scene controller for Project 1.
+# This script coordinates the login, registration, verification, password reset,
+# and game profile screens while keeping the actual AWS logic in separate nodes.
+
 @onready var login_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/LoginContainer
 @onready var register_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/RegisterContainer
 @onready var verification_container: VBoxContainer = $ProjectScroll/ProjectMargin/ProjectContent/VerificationContainer
@@ -52,6 +56,8 @@ var active_status_label: Label
 var pending_username := ""
 
 
+# Binds UI button presses to their handlers and subscribes to the Cognito and
+# cloud-save service signals so the scene reacts to async AWS work.
 func _ready() -> void:
 	$ProjectScroll/ProjectMargin/ProjectContent/BackToLobbyButton.pressed.connect(_back_to_lobby)
 	login_button.pressed.connect(_on_login_pressed)
@@ -95,6 +101,8 @@ func _ready() -> void:
 	_show_login()
 
 
+# Displays the login container and updates the active status label so user-facing
+# messages appear in the correct panel.
 func _show_login() -> void:
 	login_container.show()
 	register_container.hide()
@@ -104,6 +112,7 @@ func _show_login() -> void:
 	active_status_label = login_status
 
 
+# Shows the sign-up view and clears the active status target for the register form.
 func _show_register() -> void:
 	login_container.hide()
 	register_container.show()
@@ -113,6 +122,8 @@ func _show_register() -> void:
 	active_status_label = register_status
 
 
+# Shows the email verification workflow using the pending username if it was
+# already captured during registration.
 func _show_verification() -> void:
 	login_container.hide()
 	register_container.hide()
@@ -128,6 +139,8 @@ func _show_verification() -> void:
 		_set_status("")
 
 
+# Switches the UI to the password reset workflow while keeping the user on the
+# same scene and preserving the current auth state.
 func _show_password_reset() -> void:
 	login_container.hide()
 	register_container.hide()
@@ -137,6 +150,8 @@ func _show_password_reset() -> void:
 	active_status_label = password_reset_status
 
 
+# Opens the profile screen after a successful login, making the player profile the
+# active area for save/load actions.
 func _show_game_profile() -> void:
 	login_container.hide()
 	register_container.hide()
@@ -146,6 +161,8 @@ func _show_game_profile() -> void:
 	active_status_label = profile_status
 
 
+# Submits the username/email and password to Cognito for the USER_PASSWORD_AUTH
+# sign-in flow.
 func _on_login_pressed() -> void:
 	var username := login_identifier_field.text.strip_edges()
 	if username.is_empty() or login_password_field.text.is_empty():
@@ -163,16 +180,21 @@ func _on_login_pressed() -> void:
 		_set_status("Signing in with Cognito...")
 
 
+# Moves the user into the profile screen after a successful login and immediately
+# attempts to load any saved cloud data linked to the authenticated account.
 func _on_login_succeeded(username: String) -> void:
 	profile_username_field.text = "" if username.contains("@") else username
 	_show_game_profile()
 	_on_load_pressed()
 
 
+# Displays the Cognito sign-in error without clearing the login form.
 func _on_login_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Opens the password reset screen and pre-fills the current login identifier if
+# the user already entered it.
 func _on_forgot_password_pressed() -> void:
 	password_reset_username_field.text = login_identifier_field.text.strip_edges()
 	password_reset_code_field.clear()
@@ -182,6 +204,8 @@ func _on_forgot_password_pressed() -> void:
 	_set_status("")
 
 
+# Requests a Cognito password reset code using the username or email entered by
+# the user.
 func _on_send_reset_code_pressed() -> void:
 	var username := password_reset_username_field.text.strip_edges()
 	if username.is_empty():
@@ -195,6 +219,8 @@ func _on_send_reset_code_pressed() -> void:
 		_set_status("Requesting a password reset code from Cognito...")
 
 
+# Validates the reset code and new password before sending ConfirmForgotPassword to
+# Cognito.
 func _on_reset_password_pressed() -> void:
 	var username := password_reset_username_field.text.strip_edges()
 	var confirmation_code := password_reset_code_field.text.strip_edges()
@@ -220,15 +246,20 @@ func _on_reset_password_pressed() -> void:
 		_set_status("Resetting your password with Cognito...")
 
 
+# Captures the username returned from Cognito and updates the current status text
+# after the reset code has been successfully requested.
 func _on_password_reset_code_sent(username: String, message: String) -> void:
 	password_reset_username_field.text = username
 	_set_status(message)
 
 
+# Shows the password reset request error returned by Cognito.
 func _on_password_reset_code_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Clears the reset form and returns the user to the login screen after a
+# successful password update.
 func _on_password_reset_succeeded(username: String) -> void:
 	password_reset_code_field.clear()
 	new_password_field.clear()
@@ -239,10 +270,13 @@ func _on_password_reset_succeeded(username: String) -> void:
 	_set_status("Password reset successfully. Sign in with your new password.")
 
 
+# Displays a failure message when the final password update is rejected by Cognito.
 func _on_password_reset_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Validates the registration form and sends SignUp to Cognito when the fields are
+# complete and the password confirmation matches.
 func _on_create_account_pressed() -> void:
 	if register_username_field.text.strip_edges().is_empty() \
 			or register_email_field.text.strip_edges().is_empty() \
@@ -274,6 +308,8 @@ func _on_create_account_pressed() -> void:
 		_set_status("Sending registration request to Cognito...")
 
 
+# Performs a lightweight email validation so the UI rejects obviously malformed
+# addresses before making a network request.
 func _is_valid_email(email: String) -> bool:
 	var email_parts := email.split("@", false)
 	if email_parts.size() != 2 \
@@ -295,6 +331,8 @@ func _is_valid_email(email: String) -> bool:
 	return true
 
 
+# Verifies the user's email using the code they received from Cognito after
+# registration.
 func _on_verify_email_pressed() -> void:
 	var username := _get_verification_username()
 	var confirmation_code := verification_code_field.text.strip_edges()
@@ -318,6 +356,8 @@ func _on_verify_email_pressed() -> void:
 		_set_status("Verifying your email with Cognito...")
 
 
+# Requests another verification code using the pending username captured during
+# registration.
 func _on_resend_code_pressed() -> void:
 	var username := _get_verification_username()
 	if username.is_empty():
@@ -336,12 +376,16 @@ func _on_resend_code_pressed() -> void:
 		_set_status("Requesting a new verification code...")
 
 
+# Returns the verification username already stored in memory, or falls back to the
+# field on screen, which allows the user to manually enter it when needed.
 func _get_verification_username() -> String:
 	if not pending_username.is_empty():
 		return pending_username
 	return verification_username_field.text.strip_edges()
 
 
+# Disables the auth buttons while a Cognito request is active to avoid duplicate
+# submissions.
 func _on_auth_operation_started(_operation: String) -> void:
 	login_button.disabled = true
 	create_account_button.disabled = true
@@ -351,6 +395,7 @@ func _on_auth_operation_started(_operation: String) -> void:
 	reset_password_button.disabled = true
 
 
+# Re-enables the auth controls once the backend request has completed.
 func _on_auth_operation_finished(_operation: String) -> void:
 	login_button.disabled = false
 	create_account_button.disabled = false
@@ -360,6 +405,8 @@ func _on_auth_operation_finished(_operation: String) -> void:
 	reset_password_button.disabled = false
 
 
+# Stores the fresh username, moves the UI to the email verification screen, and
+# tells the player to check their inbox.
 func _on_registration_accepted(username: String, message: String) -> void:
 	pending_username = username
 	login_identifier_field.text = username
@@ -368,10 +415,14 @@ func _on_registration_accepted(username: String, message: String) -> void:
 	_set_status(message)
 
 
+# Shows registration errors returned by Cognito such as username collisions or
+# invalid password policies.
 func _on_registration_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Returns the user to the login screen after a successful confirmation so they can
+# sign in with their now-verified account.
 func _on_confirmation_succeeded() -> void:
 	if not pending_username.is_empty():
 		login_identifier_field.text = pending_username
@@ -380,24 +431,32 @@ func _on_confirmation_succeeded() -> void:
 	_set_status("Email verified. You can now sign in.")
 
 
+# Shows the verification error returned by Cognito, such as a bad code or expired
+# confirmation code.
 func _on_confirmation_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Updates the status label after Cognito confirms that a fresh verification code
+# was sent.
 func _on_resend_succeeded(message: String) -> void:
 	_set_status(message)
 
 
+# Displays any resend-code failure from Cognito.
 func _on_resend_failed(message: String) -> void:
 	_set_status(message)
 
 
+# Produces a consistent message when the AWS request could not even start.
 func _request_start_error(error: int) -> String:
 	if error == ERR_BUSY:
 		return "A Cognito request is already in progress. Please wait."
 	return "Could not start the Cognito request. Try again."
 
 
+# Packages the edited profile data into the save JSON and sends it to the cloud
+# save service using the current access token.
 func _on_save_pressed() -> void:
 	var access_token := _get_access_token_for_cloud()
 	if access_token.is_empty():
@@ -428,6 +487,8 @@ func _on_save_pressed() -> void:
 		_set_status(_cloud_request_start_error(request_error))
 
 
+# Loads the current player's saved profile from the cloud and populates the form
+# with the recovered values.
 func _on_load_pressed() -> void:
 	var access_token := _get_access_token_for_cloud()
 	if access_token.is_empty():
@@ -438,6 +499,8 @@ func _on_load_pressed() -> void:
 		_set_status(_cloud_request_start_error(request_error))
 
 
+# Signs the user out by clearing the Cognito session and returning them to the
+# login screen.
 func _on_logout_pressed() -> void:
 	$CognitoAuth.call("logout")
 	login_password_field.clear()

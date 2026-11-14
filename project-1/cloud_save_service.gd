@@ -6,7 +6,7 @@ signal progress_updated(message: String)
 signal operation_succeeded(operation: String, message: String, save_data: Dictionary)
 signal operation_failed(message: String, requires_login: bool)
 
-const API_ENDPOINT := "https://29xudoj1ra.execute-api.eu-north-1.amazonaws.com/presigned-url"
+const API_ENDPOINT := "YOUR_API_ENDPOINT"
 const MAX_PROFILE_VALUE := 2147483647
 
 var _gateway_request: HTTPRequest

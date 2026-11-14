@@ -1,5 +1,10 @@
 extends Node
 
+# Project 1's Cognito gateway.
+# This node talks directly to Amazon Cognito over HTTPS and emits signals back to
+# the UI when a request starts, succeeds, or fails. The authentication logic stays
+# completely separate from the save/load service and the scene controller.
+
 signal operation_started(operation: String)
 signal operation_finished(operation: String)
 signal registration_accepted(username: String, message: String)
@@ -16,7 +21,7 @@ signal password_reset_succeeded(username: String)
 signal password_reset_failed(message: String)
 
 const COGNITO_ENDPOINT := "https://cognito-idp.eu-north-1.amazonaws.com/"
-const CLIENT_ID := "39enqqncspu5ishknb9t9bdhv0"
+const CLIENT_ID := "YOUR_APP_CLIENT_ID"
 const CONTENT_TYPE := "application/x-amz-json-1.1"
 
 var _http_request: HTTPRequest
@@ -29,6 +34,9 @@ var _refresh_token := ""
 var _token_expires_at := 0
 
 
+# Creates the internal HTTPRequest node that performs all Cognito calls.
+# We keep the transfer asynchronous so the Godot UI remains responsive while AWS
+# is processing the request.
 func _ready() -> void:
 	_http_request = HTTPRequest.new()
 	_http_request.name = "CognitoHTTPRequest"
@@ -37,6 +45,8 @@ func _ready() -> void:
 	_http_request.request_completed.connect(_on_request_completed)
 
 
+# Sends a new user registration request to Cognito.
+# This is the SignUp flow used for creating a new account with a verified email.
 func sign_up(username: String, email: String, password: String) -> Error:
 	var payload := {
 		"ClientId": CLIENT_ID,
@@ -52,6 +62,7 @@ func sign_up(username: String, email: String, password: String) -> Error:
 	return _send_request("SignUp", username, payload)
 
 
+# Confirms the emailed verification code for a newly created account.
 func confirm_sign_up(username: String, confirmation_code: String) -> Error:
 	var payload := {
 		"ClientId": CLIENT_ID,
@@ -61,6 +72,7 @@ func confirm_sign_up(username: String, confirmation_code: String) -> Error:
 	return _send_request("ConfirmSignUp", username, payload)
 
 
+# Requests a fresh email verification code for a user who has not yet confirmed.
 func resend_confirmation_code(username: String) -> Error:
 	var payload := {
 		"ClientId": CLIENT_ID,
@@ -69,6 +81,8 @@ func resend_confirmation_code(username: String) -> Error:
 	return _send_request("ResendConfirmationCode", username, payload)
 
 
+# Starts the password reset flow by asking Cognito to send a reset code to the
+# verified email for the provided username or email address.
 func forgot_password(username: String) -> Error:
 	var payload := {
 		"ClientId": CLIENT_ID,
@@ -77,6 +91,8 @@ func forgot_password(username: String) -> Error:
 	return _send_request("ForgotPassword", username, payload)
 
 
+# Completes the password reset by sending the verification code and the new
+# password back to Cognito.
 func confirm_forgot_password(
 	username: String,
 	confirmation_code: String,
@@ -91,6 +107,9 @@ func confirm_forgot_password(
 	return _send_request("ConfirmForgotPassword", username, payload)
 
 
+# Starts Cognito's USER_PASSWORD_AUTH flow for sign-in.
+# This keeps the login request fully asynchronous while returning the access token
+# once Cognito responds.
 func initiate_password_auth(username: String, password: String) -> Error:
 	if _request_in_progress:
 		return ERR_BUSY
@@ -106,6 +125,8 @@ func initiate_password_auth(username: String, password: String) -> Error:
 	return _send_request("InitiateAuth", username, payload)
 
 
+# Returns the cached access token only when it has not expired.
+# If the token has expired, the browser-style in-memory cache is cleared.
 func get_valid_access_token() -> String:
 	if _access_token.is_empty():
 		return ""
@@ -115,10 +136,13 @@ func get_valid_access_token() -> String:
 	return _access_token
 
 
+# Clears the cached Cognito tokens so the session ends cleanly.
 func logout() -> void:
 	_clear_tokens()
 
 
+# Builds a Cognito request using the AWS JSON API format and the correct
+# X-Amz-Target header for the selected operation.
 func _send_request(operation: String, username: String, payload: Dictionary) -> Error:
 	if _request_in_progress:
 		return ERR_BUSY
@@ -148,6 +172,9 @@ func _send_request(operation: String, username: String, payload: Dictionary) -> 
 	return OK
 
 
+# Handles the asynchronous completion of every Cognito request.
+# This central callback interprets the HTTP status, maps AWS errors to friendly
+# messages, and emits a signal for the UI to react to.
 func _on_request_completed(
 	result: int,
 	response_code: int,
@@ -199,6 +226,8 @@ func _on_request_completed(
 	operation_finished.emit(completed_operation)
 
 
+# Extracts the issued Cognito tokens from a successful login response and stores
+# them in memory for later API calls.
 func _handle_authentication_response(username: String, response_data: Dictionary) -> void:
 	var authentication_result: Variant = response_data.get("AuthenticationResult")
 	if not authentication_result is Dictionary:
@@ -221,6 +250,9 @@ func _handle_authentication_response(username: String, response_data: Dictionary
 	login_succeeded.emit(username)
 
 
+# Turns a challenge-style Cognito response into a human-readable message.
+# This helps the UI explain why sign-in could not complete without exposing AWS
+# internals.
 func _challenge_message(response_data: Dictionary) -> String:
 	var challenge_name := str(response_data.get("ChallengeName", ""))
 	match challenge_name:
@@ -236,6 +268,7 @@ func _challenge_message(response_data: Dictionary) -> String:
 			return "Cognito did not complete sign-in. An unsupported authentication challenge may be required."
 
 
+# Removes the in-memory auth state so future calls do not reuse stale tokens.
 func _clear_tokens() -> void:
 	_access_token = ""
 	_id_token = ""
@@ -243,6 +276,7 @@ func _clear_tokens() -> void:
 	_token_expires_at = 0
 
 
+# Parses the raw AWS JSON body and returns a dictionary when the payload is valid.
 func _parse_response(body: PackedByteArray) -> Dictionary:
 	if body.is_empty():
 		return {}
@@ -255,6 +289,7 @@ func _parse_response(body: PackedByteArray) -> Dictionary:
 	return {}
 
 
+# Routes a failure to the correct signal so the UI shows the relevant status.
 func _emit_failure(operation: String, message: String) -> void:
 	match operation:
 		"SignUp":
@@ -272,6 +307,8 @@ func _emit_failure(operation: String, message: String) -> void:
 			login_failed.emit(message)
 
 
+# Maps raw Cognito error payloads such as UsernameExistsException and
+# CodeMismatchException into friendly UI messages without leaking sensitive data.
 func _error_message(operation: String, response_data: Dictionary) -> String:
 	var error_type := str(response_data.get("__type", response_data.get("code", "")))
 	var cognito_message := str(response_data.get("message", response_data.get("Message", ""))).to_lower()
