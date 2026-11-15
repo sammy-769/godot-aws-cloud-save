@@ -3,6 +3,9 @@
 /android/
 *.import
 
+#Vs code
+.vscode/
+
 # Python
 .venv/
 venv/
