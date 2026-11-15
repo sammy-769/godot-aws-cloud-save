@@ -247,66 +247,66 @@ text = "Back to Login"
 layout_mode = 2
 autowrap_mode = 3
 
-[node name="PasswordResetContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent"]
+[node name="PasswordResetContainer" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent" unique_id=721184315]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PasswordResetCenter" type="CenterContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer"]
+[node name="PasswordResetCenter" type="CenterContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer" unique_id=1838444674]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PasswordResetForm" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter"]
+[node name="PasswordResetForm" type="VBoxContainer" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter" unique_id=923187171]
 custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 12
 
-[node name="PasswordResetHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetHeading" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=467641604]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Reset Password"
 horizontal_alignment = 1
 
-[node name="PasswordResetDescription" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetDescription" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=94010884]
 layout_mode = 2
 text = "Request a code by email, then choose a new password."
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="PasswordResetUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetUsernameField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=290169390]
 layout_mode = 2
 placeholder_text = "Enter username or email..."
 
-[node name="PasswordResetCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetCodeField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=841950950]
 layout_mode = 2
 placeholder_text = "Enter password reset code..."
 
-[node name="NewPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="NewPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=1012483678]
 layout_mode = 2
 placeholder_text = "New password..."
 secret = true
 
-[node name="ConfirmNewPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="ConfirmNewPasswordField" type="LineEdit" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=1739954048]
 layout_mode = 2
 placeholder_text = "Confirm new password..."
 secret = true
 
-[node name="SendResetCodeButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="SendResetCodeButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=263345423]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "Send Reset Code"
 
-[node name="ResetPasswordButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="ResetPasswordButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=1110006790]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "Reset Password"
 
-[node name="PasswordResetBackToLoginButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetBackToLoginButton" type="Button" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=16626290]
 layout_mode = 2
 text = "Back to Login"
 
-[node name="PasswordResetStatus" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm"]
+[node name="PasswordResetStatus" type="Label" parent="ProjectScroll/ProjectMargin/ProjectContent/PasswordResetContainer/PasswordResetCenter/PasswordResetForm" unique_id=748823495]
 layout_mode = 2
 autowrap_mode = 3
 

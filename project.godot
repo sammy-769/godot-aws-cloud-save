@@ -10,10 +10,10 @@ config_version=5
 
 [application]
 
-config/name="Cloud Save Lab"
+config/name="Godot AWS Cloud Save"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="uid://bv2xmxyju7q5n"
 
 [display]
 
