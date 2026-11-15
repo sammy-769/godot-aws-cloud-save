@@ -232,13 +232,12 @@ This project is intended to develop practical experience with:
 
 ## Current Limitations
 
-Project 1 is a learning implementation rather than a production-ready game backend.
+Project 1 is a learning-focused game backend designed to work well for small games.
 
 Some features have not yet been implemented, including:
 
 - Automatic authentication token refresh.
 - Remote sign-out and refresh-token revocation.
-- Multi-factor authentication.
 - Advanced Cognito authentication challenges.
 - Dedicated request rate limiting.
 - Cryptographic verification of save-file integrity.
