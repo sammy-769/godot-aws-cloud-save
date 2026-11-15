@@ -198,11 +198,11 @@ The `project-1/docs/` directory contains detailed documentation for the project.
 
 | Document | Description |
 |---|---|
-| [Architecture](docs/architecture.md) | Overall system architecture and component relationships. |
-| [AWS Setup](docs/aws-setup.md) | AWS services, resource configuration and setup instructions. |
-| [Godot Implementation](docs/godot-implementation.md) | Godot scenes, scripts and application workflows. |
-| [Security](docs/security.md) | Authentication, JWT validation, IAM permissions and data protection. |
-| [Testing](docs/testing.md) | Backend and Godot application testing procedures and results. |
+| [Architecture](project-1/docs/architecture.md) | Overall system architecture and component relationships. |
+| [AWS Setup](project-1/docs/aws-setup.md) | AWS services, resource configuration and setup instructions. |
+| [Godot Implementation](project-1/docs/godot-implementation.md) | Godot scenes, scripts and application workflows. |
+| [Security](project-1/docs/security.md) | Authentication, JWT validation, IAM permissions and data protection. |
+| [Testing](project-1/docs/testing.md) | Backend and Godot application testing procedures and results. |
 
 ## Technologies
 
