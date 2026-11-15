@@ -1,4 +1,4 @@
-# AWS Setup — Godot Cloud Save Lab (Project 1)
+# AWS Setup — Godot AWS Cloud Save (Project 1)
 
 ## 1. Introduction
 

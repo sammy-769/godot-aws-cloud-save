@@ -1,4 +1,4 @@
-# Godot Implementation — Cloud Save Lab (Project 1)
+# Godot Implementation — Godot AWS Cloud Save (Project 1)
 
 ## 1. Introduction
 
