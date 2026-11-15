@@ -508,6 +508,8 @@ func _on_logout_pressed() -> void:
 	_set_status("You have been signed out.")
 
 
+# Returns the active access token only if it is still valid.
+# If the token has expired, the scene logs the user out and forces a fresh login.
 func _get_access_token_for_cloud() -> String:
 	var access_token := str($CognitoAuth.call("get_valid_access_token"))
 	if access_token.is_empty():
@@ -517,6 +519,7 @@ func _get_access_token_for_cloud() -> String:
 	return access_token
 
 
+# Converts a profile text field into a valid non-negative integer.
 func _profile_integer(field: LineEdit, label: String) -> int:
 	var value := field.text.strip_edges()
 	if not value.is_valid_int():
@@ -529,22 +532,26 @@ func _profile_integer(field: LineEdit, label: String) -> int:
 	return parsed_value
 
 
+# Disables the profile action buttons during a cloud save or load request.
 func _on_cloud_operation_started(_operation: String) -> void:
 	save_button.disabled = true
 	load_button.disabled = true
 	logout_button.disabled = true
 
 
+# Re-enables the save/load buttons after the cloud request finishes.
 func _on_cloud_operation_finished(_operation: String) -> void:
 	save_button.disabled = false
 	load_button.disabled = false
 	logout_button.disabled = false
 
 
+# Updates the profile status label while the cloud service is in progress.
 func _on_cloud_progress_updated(message: String) -> void:
 	profile_status.text = message
 
 
+# Applies the saved profile data back into the form after a successful cloud load.
 func _on_cloud_operation_succeeded(
 	operation: String,
 	message: String,
@@ -560,6 +567,8 @@ func _on_cloud_operation_succeeded(
 	profile_status.text = message
 
 
+# Shows the cloud error message and optionally returns the user to the login page
+# if the session has expired.
 func _on_cloud_operation_failed(message: String, requires_login: bool) -> void:
 	if requires_login:
 		$CognitoAuth.call("logout")
@@ -569,6 +578,7 @@ func _on_cloud_operation_failed(message: String, requires_login: bool) -> void:
 	profile_status.text = message
 
 
+# Maps low-level request errors to a user-friendly message for the save/load flow.
 func _cloud_request_start_error(error: int) -> String:
 	if error == ERR_BUSY:
 		return "A cloud save operation is already in progress. Please wait."
@@ -579,11 +589,13 @@ func _cloud_request_start_error(error: int) -> String:
 	return "Could not start the cloud save operation. Try again."
 
 
+# Writes a message to the currently active status label for the visible screen.
 func _set_status(message: String) -> void:
 	if is_instance_valid(active_status_label):
 		active_status_label.text = message
 
 
+# Returns the player to the lobby scene and resets the active screen state.
 func _back_to_lobby() -> void:
 	var error := get_tree().change_scene_to_file("res://Main.tscn")
 	if error != OK:

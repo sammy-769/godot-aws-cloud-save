@@ -17,6 +17,9 @@ var _presigned_url := ""
 var _pending_save_data: Dictionary = {}
 
 
+# Creates the HTTPRequest nodes used for API Gateway and direct S3 access.
+# The save/load workflow is intentionally split into two async requests so the UI
+# can keep working while the backend prepares a presigned URL and the file is sent.
 func _ready() -> void:
 	_gateway_request = HTTPRequest.new()
 	_gateway_request.name = "ApiGatewayHTTPRequest"
@@ -31,18 +34,23 @@ func _ready() -> void:
 	_s3_request.request_completed.connect(_on_s3_request_completed)
 
 
+# Returns true while an upload or download operation is still in progress.
 func is_busy() -> bool:
 	return not _operation.is_empty()
 
 
+# Starts an upload operation for a player's JSON save data.
 func save_player_data(access_token: String, save_data: Dictionary) -> Error:
 	return _start_operation("save", access_token, save_data)
 
 
+# Starts a download operation for the authenticated player's save data.
 func load_player_data(access_token: String) -> Error:
 	return _start_operation("load", access_token, {})
 
 
+# Validates the request, tracks the active operation, and asks API Gateway for a
+# presigned URL before the actual S3 transfer begins.
 func _start_operation(operation: String, access_token: String, save_data: Dictionary) -> Error:
 	if is_busy():
 		return ERR_BUSY
@@ -73,6 +81,9 @@ func _start_operation(operation: String, access_token: String, save_data: Dictio
 	return OK
 
 
+# Handles the response from API Gateway.
+# If the backend returns a valid presigned URL, the next step is the S3 request
+# using either PUT upload or GET download.
 func _on_gateway_request_completed(
 	result: int,
 	response_code: int,
@@ -116,6 +127,7 @@ func _on_gateway_request_completed(
 		_start_s3_request(HTTPClient.METHOD_GET, PackedStringArray(), "")
 
 
+# Sends the actual request to S3 using the presigned URL returned by the API.
 func _start_s3_request(
 	method: HTTPClient.Method,
 	headers: PackedStringArray,
@@ -126,6 +138,9 @@ func _start_s3_request(
 		_fail_operation("Could not start the S3 transfer. Please try again.")
 
 
+# Handles the response from S3.
+# Uploads complete successfully if the presigned request returns a valid HTTP code;
+# downloads must also parse the returned JSON before the UI updates the profile.
 func _on_s3_request_completed(
 	result: int,
 	response_code: int,
@@ -162,6 +177,8 @@ func _on_s3_request_completed(
 	_complete_operation("Cloud data loaded successfully.", validated_data)
 
 
+# Validates the downloaded JSON and filters it down to the known profile fields.
+# This prevents invalid or partial data from overwriting the player's local form.
 func _validate_downloaded_save(save_data: Dictionary) -> Dictionary:
 	if not save_data.has("schema_version") or not _is_nonnegative_integer(save_data["schema_version"]):
 		return {}
@@ -180,6 +197,7 @@ func _validate_downloaded_save(save_data: Dictionary) -> Dictionary:
 	return validated
 
 
+# Confirms that the in-memory profile data is a complete, valid save payload.
 func _is_valid_save_data(save_data: Dictionary) -> bool:
 	if save_data.get("schema_version") != 1:
 		return false
@@ -193,6 +211,7 @@ func _is_valid_save_data(save_data: Dictionary) -> bool:
 	return true
 
 
+# Accepts only safe integer-like values that fit within the project limits.
 func _is_nonnegative_integer(value: Variant) -> bool:
 	if typeof(value) == TYPE_INT:
 		return value >= 0 and value <= MAX_PROFILE_VALUE
@@ -204,6 +223,7 @@ func _is_nonnegative_integer(value: Variant) -> bool:
 	return false
 
 
+# Parses the HTTP response body as JSON and keeps only dictionary payloads.
 func _parse_json_dictionary(body: PackedByteArray) -> Dictionary:
 	if body.is_empty():
 		return {}
@@ -213,10 +233,13 @@ func _parse_json_dictionary(body: PackedByteArray) -> Dictionary:
 	return json.data
 
 
+# Safety check used before we trust a presigned URL from the backend.
 func _is_https_url(url: String) -> bool:
 	return url.begins_with("https://") and not url.contains("\n") and not url.contains("\r")
 
 
+# Emits the final success signal and clears the active state after a successful
+# upload or load.
 func _complete_operation(message: String, save_data: Dictionary = {}) -> void:
 	var completed_operation := _operation
 	_reset_operation()
@@ -224,6 +247,7 @@ func _complete_operation(message: String, save_data: Dictionary = {}) -> void:
 	operation_finished.emit(completed_operation)
 
 
+# Emits the failure signal and resets the active operation so the UI can recover.
 func _fail_operation(message: String, requires_login: bool = false) -> void:
 	var completed_operation := _operation
 	_reset_operation()
@@ -231,6 +255,7 @@ func _fail_operation(message: String, requires_login: bool = false) -> void:
 	operation_finished.emit(completed_operation)
 
 
+# Clears the in-flight state so a new save or load request can begin immediately.
 func _reset_operation() -> void:
 	_operation = ""
 	_expected_s3_method = ""
