@@ -232,7 +232,7 @@ This project is intended to develop practical experience with:
 
 ## Current Limitations
 
-Project 1 is a learning implementation rather than a production-ready game backend.
+Project 1 provides a working cloud-save backend suitable for small games. Review the limitations below and assess whether they fit your game's requirements before deployment.
 
 Some features have not yet been implemented, including:
 
