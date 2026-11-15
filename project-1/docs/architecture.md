@@ -1,4 +1,4 @@
-# Architecture — Godot Cloud Save Lab
+# Architecture — Godot AWS Cloud Save
 
 ## 1. Project Overview
 

@@ -1,4 +1,4 @@
-# Godot Cloud Save Lab
+# Godot AWS Cloud Save
 
 A hands-on cloud engineering project exploring how to integrate Godot games with AWS services to build secure, scalable and cost-conscious cloud save systems.
 
